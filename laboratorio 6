@@ -1,0 +1,86 @@
+# Importar librerías
+import pandas as pd
+import numpy as np # Se añade para la función np.polyfit
+import matplotlib.pyplot as plt
+
+# pregunta 1
+df = pd.read_excel('/content/Base6_1.xlsx') # Se asume la ruta y nombre de archivo correcto
+print("las primeras filas son  ")
+print(df.head(3))
+
+# Definición de variables para claridad
+columna_visitas = 'visitas_diarias'
+columna_ventas = 'ventas_diarias'
+
+# --- MODELO DE REGRESIÓN LINEAL (COMPLEMENTO) ---
+# Se calcula el modelo de regresión lineal para las nuevas variables
+Valores_indep = df[columna_visitas]
+Valores_dep = df[columna_ventas]
+
+# Calcular la pendiente (m) y el intercepto (b) usando np.polyfit de grado 1
+modelo_lineal = np.polyfit(Valores_indep, Valores_dep, 1)
+pendiente, intercepto = modelo_lineal
+
+# Imprimir los resultados del modelo
+print("\n--- Resultados del Modelo de Regresión Lineal ---")
+print(f'La pendiente es {pendiente:.3f}')
+print(f'El intercepto es {intercepto:.3f}')
+print(f'La ecuación del modelo lineal es y = {pendiente:.3f}x + {intercepto:.3f}')
+# ----------------------------------------------------
+
+# pregunta 2
+COV = df[columna_visitas].cov(df[columna_ventas])
+print("\ncovarianza")
+print(COV)
+CORR = df[columna_visitas].corr(df[columna_ventas])
+print(CORR)
+
+# PREGUNTA 3
+# Gráfico de Dispersión
+fig, ax = plt.subplots(figsize=(6, 4))
+Graf_dispersion = ax.scatter(df[columna_visitas], df[columna_ventas])
+# Personalización
+ax.set_title('Relación visitas diarias e ventas_diarias')
+ax.set_xlabel('visitas diarias ')
+ax.set_ylabel('ventas_diarias ')
+# Mostrar el gráfico
+plt.show()
+
+# PREGUNTA 4
+# Gráfico de Dispersión con la Línea de Regresión
+plt.figure(figsize=(8, 6))
+
+# Puntos de dispersión
+plt.scatter(df[columna_visitas], df[columna_ventas], label='Datos Reales')
+
+# Cálculo de la línea de regresión (y = pendiente * x + intercepto)
+recta_regresion = pendiente * df[columna_visitas] + intercepto
+
+# Trazar la línea de regresión usando la pendiente e intercepto calculados
+ecuacion_label = f'y = {pendiente:.3f}x + {intercepto:.3f}'
+plt.plot(df[columna_visitas], recta_regresion, color='red', label=f'Línea de Regresión: {ecuacion_label}')
+
+# Ajuste en la etiqueta del eje X e Y para hacerlos más claros
+plt.title(f'Relación entre Visitantes e Ingresos')
+plt.xlabel('Cantidad de Visitantes')
+plt.ylabel('Ingresos')
+plt.legend()
+plt.grid(True, linestyle='--', alpha=0.6)
+plt.show()
+#pregunta 5
+print("segun lo que se observa el cofieciente de rorrelacion lineal es fuerte y positiva y hay datos que se salen de aquel" )
+
+#pregunta 6
+x=350
+y=pendiente*x+intercepto
+print(f"las ventas cuandpo halla {x} personas seran de: {y:.0f} $pesos diariamente ")
+
+#pregunta 7
+import numpy as np
+from sklearn.metrics import r2_score
+# Obtención (de los parámetros) del modelo lineal
+modelo_lineal = np.polyfit(df[columna_visitas], df[columna_ventas], 1)
+# Coeficiente de determinación
+predicciones = np.polyval(modelo_lineal, df[columna_visitas])
+R2= r2_score(df[columna_ventas], predicciones)
+print(f'El coeficiente de determinación es {R2*100:.1f}%')

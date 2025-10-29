@@ -1,0 +1,76 @@
+
+
+import pandas as pd
+import numpy as np 
+import matplotlib.pyplot as plt
+import seaborn as sns
+df = pd.read_excel('/content/sample_data/Base7_2.xlsx')
+print(df.head())
+
+# 1. Crear la tabla de frecuencias (Respuesta a la Pregunta 1)
+#    index = filas ('GRUPO')
+#    columns = columnas ('GENERO')
+#    margins=True = Añade la fila y columna de Totales ('All')
+
+tabla_frecuencias = pd.crosstab(
+    index=df['GRUPO'],
+    columns=df['GENERO'],
+    margins=True
+)
+
+# 2. Mostrar la tabla para que puedas usarla
+print("--- Tabla de Frecuencias Absolutas ---")
+print(tabla_frecuencias)
+
+tabla_condicional_genero = pd.crosstab(
+    index=df['GRUPO'],
+    columns=df['GENERO'],
+    normalize='columns'  
+)
+
+# 1. Crear la tabla de probabilidad condicional (por columna)
+#    Esto calcula P(Grupo | Genero)
+tabla_condicional = pd.crosstab(
+    index=df['GRUPO'],
+    columns=df['GENERO'],
+    normalize='columns'
+)
+# 2. Convertir a porcentaje y redondear para verla mejor
+tabla_porcentaje = round(tabla_condicional * 100, 2)
+
+print("--- Tabla de Probabilidad Condicional P(Grupo | Genero) en % ---")
+print(tabla_porcentaje)
+print("\n" + "="*50 + "\n") # Separador
+
+print("""
+3. Si se escoge el registro de un accidente al azar, ¿cuál es la probabilidad que sea de:
+
+a) una persona de entre 40 y 49 años? P(40-49) = (62+63)/471 = 125/471 ≈ 26.54%
+
+b) una persona de a lo más 34 años? P(<= 34) = (10+33+53+43)/471 = 139/471 ≈ 29.51%
+
+c) un hombre de al menos 40 años? P(Hombre ∩ >= 40) = (53+61+47+27+28+15+4+5)/471 = 240/471 ≈ 50.96%
+
+d) una mujer de 70 años o más? P(Mujer ∩ >= 70) = (1+0)/471 = 1/471 ≈ 0.21%
+""")
+
+# --- RESPUESTA PREGUNTA 4 ---
+# "Probabilidad de 35 a 39, DADO QUE es Mujer"
+# Buscamos en la tabla: fila '35 a 39', columna 'Mujer'
+respuesta_4 = tabla_porcentaje.loc['35 a 39', 'Mujer']
+
+print(f"Respuesta Pregunta 4: P(35-39 | Mujer) = {respuesta_4}%")
+
+
+# --- RESPUESTA PREGUNTA 5 ---
+# "Probabilidad de 55 o más, DADO QUE es Hombre"
+# Buscamos en la columna 'Hombre' y sumamos las filas de 55+
+
+# Definimos las filas que necesitamos sumar
+filas_55_mas = ['55 a 59', '60 a 64', '65 a 69', '70 a 74', '75 a 79']
+
+# Extraemos esos valores de la columna 'Hombre' y los sumamos
+respuesta_5 = tabla_porcentaje.loc[filas_55_mas, 'Hombre'].sum()
+
+# Mostramos el resultado (redondeado por si acaso)
+print(f"Respuesta Pregunta 5: P(>= 55 | Hombre) = {round(respuesta_5, 2)}%")
